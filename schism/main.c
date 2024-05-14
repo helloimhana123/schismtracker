@@ -538,9 +538,12 @@ static void event_loop(void)
 #endif
 		case SDL_TEXTINPUT: {
 			uint8_t* input_text = NULL;
-			if (charset_iconv((uint8_t*)event.text.text, &input_text, CHARSET_UTF8, CHARSET_CP437))
+			charset_error_t err = charset_iconv((uint8_t*)event.text.text, &input_text, CHARSET_UTF8, CHARSET_CP437);
+			if (err) {
+				log_appendf(4, "%s", charset_iconv_error_lookup(err));
 				break;
-			handle_text_input((const char*)input_text);
+			}
+			handle_text_input(input_text);
 			free(input_text);
 			break;
 		}
